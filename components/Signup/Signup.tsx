@@ -4,20 +4,23 @@ import colors from "@/constants/Colors";
 import { useRouter } from "expo-router";
 import AnimatedInput from "../AnimatedInput/AnimatedInput";
 import { CustomText } from "../CustonText/CustomText";
-import { login } from "@/services/authService";
+import { register } from "@/services/authService";
 import SuccessPopup from "../Popups/SuccessPopup";
 
-export default function Login() {
+export default function SignUp() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [username, setUsername] = useState("");
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [showSuccessMessage, setShowSuccessMessage] = useState(false);
+
   const router = useRouter();
 
   const validateInputs = () => {
-    if (!email || !password) {
-      setError("Email and password are required");
+    if (!username || !email || !password || !confirmPassword) {
+      setError("All fields are required");
       return false;
     }
 
@@ -27,28 +30,36 @@ export default function Login() {
       return false;
     }
 
+    if (password !== confirmPassword) {
+      setError("Passwords do not match");
+      return false;
+    }
+
+    if (password.length < 6) {
+      setError("Password must be at least 6 characters long");
+      return false;
+    }
+
     return true;
   };
 
-  const handleLogin = async () => {
+  const showSuccessAndRedirect = () => {
+    setShowSuccessMessage(true);
+    setTimeout(() => {
+      router.replace("/login");
+    }, 1000);
+  };
+
+  const handleSignUp = async () => {
     setError("");
     if (!validateInputs()) return;
-
     setIsLoading(true);
     try {
-      const token = await login(email, password);
-      if (token) {
-        setShowSuccessMessage(true);
-        setTimeout(() => {
-          setShowSuccessMessage(false);
-          router.replace("/(app)");
-        }, 1500);
-      } else {
-        throw new Error("Login failed: No token received");
-      }
+      await register({ username, email, password });
+      showSuccessAndRedirect();
     } catch (error: any) {
-      setError(error.message);
-      Alert.alert("Login Failed", error.message);
+      Alert.alert("Error", error.message || "An error occurred");
+      setError(error instanceof Error ? error.message : "An error occurred");
     } finally {
       setIsLoading(false);
     }
@@ -57,11 +68,18 @@ export default function Login() {
   return (
     <View style={styles.container}>
       <Text style={styles.welcomeText}>
-        Hey 👋,
+        Let's Get
         {"\n"}
-        Welcome Back 😊
+        You Started 🚀
       </Text>
       <View style={styles.formContainer}>
+        <AnimatedInput
+          placeholder="Enter your name"
+          value={username}
+          onChangeText={setUsername}
+          keyboardType="default"
+          secureTextEntry={undefined}
+        />
         <AnimatedInput
           placeholder="Enter your email"
           value={email}
@@ -76,21 +94,28 @@ export default function Login() {
           secureTextEntry
           keyboardType={undefined}
         />
+        <AnimatedInput
+          placeholder="Confirm your password"
+          value={confirmPassword}
+          onChangeText={setConfirmPassword}
+          secureTextEntry
+          keyboardType={undefined}
+        />
         {error ? <Text style={styles.errorText}>{error}</Text> : null}
 
-        <TouchableOpacity style={styles.loginButton} onPress={handleLogin}>
-          <CustomText style={styles.loginButtonText}>Login</CustomText>
+        <TouchableOpacity style={styles.signUpButton} onPress={handleSignUp}>
+          <CustomText style={styles.signUpButtonText}>Sign Up</CustomText>
         </TouchableOpacity>
       </View>
       <View style={styles.header}>
-        <Text style={styles.headerText}>Don't have an account?</Text>
-        <TouchableOpacity onPress={() => router.replace("/signup")}>
-          <Text style={styles.signUpText}>Sign up</Text>
+        <Text style={styles.headerText}>Already have an account?</Text>
+        <TouchableOpacity onPress={() => router.replace("/login")}>
+          <Text style={styles.loginText}>Login</Text>
         </TouchableOpacity>
       </View>
       <SuccessPopup
         visible={showSuccessMessage}
-        message="Login successful! Redirecting..."
+        message="Account created successfully!..."
       />
     </View>
   );
@@ -114,7 +139,7 @@ const styles = StyleSheet.create({
     marginRight: 5,
     letterSpacing: 1,
   },
-  signUpText: {
+  loginText: {
     color: colors.primary,
     fontWeight: "bold",
     letterSpacing: 1,
@@ -137,19 +162,7 @@ const styles = StyleSheet.create({
     marginBottom: 35,
     letterSpacing: 1,
   },
-  title: {
-    fontSize: 24,
-    fontWeight: "bold",
-    marginBottom: 20,
-    color: colors.white,
-    textTransform: "uppercase",
-    letterSpacing: 1,
-  },
-  subTitle: {
-    marginBottom: 20,
-    color: colors.light,
-  },
-  loginButton: {
+  signUpButton: {
     backgroundColor: colors.white,
     padding: 13,
     borderRadius: 27,
@@ -160,7 +173,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 1,
     shadowRadius: 10,
   },
-  loginButtonText: {
+  signUpButtonText: {
     color: colors.bg,
     fontWeight: "bold",
     fontSize: 20,
@@ -169,7 +182,12 @@ const styles = StyleSheet.create({
   },
   errorText: {
     color: "red",
-    marginTop: 10,
+    marginBottom: 10,
+  },
+  successText: {
+    color: colors.primary,
+    fontWeight: "bold",
     textAlign: "center",
+    marginBottom: 10,
   },
 });

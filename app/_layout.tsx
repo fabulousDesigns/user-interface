@@ -38,6 +38,7 @@ export default function RootLayout() {
     <Stack screenOptions={{ headerShown: false }} onLayout={onLayoutRootView}>
       <Stack.Screen name="index" />
       <Stack.Screen name="login" />
+      <Stack.Screen name="signup" />
       <Stack.Screen name="(app)" />
     </Stack>
   );
