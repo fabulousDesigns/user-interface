@@ -6,6 +6,9 @@ const colors = {
   white: "#fff",
   light: "rgba(255, 255, 255, 0.6)",
   error: "#f86464",
+  darkGray: "#333",
+  lightGray: "#aaa",
+  dark: "#000",
 };
 
 export default colors;

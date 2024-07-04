@@ -1,29 +1,14 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { View, ActivityIndicator } from "react-native";
 import { useRouter } from "expo-router";
-import { isLoggedIn } from "@/services/authService";
 import colors from "@/constants/Colors";
+import { useAuth } from "@/contexts/AuthContext";
 
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
-  const [loading, setLoading] = useState(true);
-  const [authenticated, setAuthenticated] = useState(false);
+  const { isAuthenticated, loading } = useAuth();
   const router = useRouter();
-
-  useEffect(() => {
-    const checkAuth = async () => {
-      const loggedIn = await isLoggedIn();
-      if (!loggedIn) {
-        router.replace("/login");
-      } else {
-        setAuthenticated(true);
-      }
-      setLoading(false);
-    };
-
-    checkAuth();
-  }, []);
 
   if (loading) {
     return (
@@ -33,7 +18,8 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({
     );
   }
 
-  if (!authenticated) {
+  if (!isAuthenticated) {
+    router.replace("/login");
     return null;
   }
 

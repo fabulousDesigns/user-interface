@@ -1,11 +1,18 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
+import { jwtDecode } from "jwt-decode";
+
 const API_BASE_URL = "http://localhost:5001";
 
 interface RegisterData {
   username: string;
   email: string;
   password: string;
+}
+
+interface TokenResponse {
+  accessToken: string;
+  refreshToken: string;
 }
 
 export async function register(data: RegisterData): Promise<any> {
@@ -25,18 +32,29 @@ export async function register(data: RegisterData): Promise<any> {
   return response.json();
 }
 
-export const login = async (email: string, password: string) => {
+export const login = async (
+  email: string,
+  password: string
+): Promise<string> => {
   try {
-    const response = await axios.post(`${API_BASE_URL}/auth/login`, {
-      email,
-      password,
-    });
+    const response = await axios.post<TokenResponse>(
+      `${API_BASE_URL}/auth/login`,
+      {
+        email,
+        password,
+      }
+    );
 
-    if (response.data && response.data.token) {
-      await AsyncStorage.setItem("userToken", response.data.token);
-      return response.data.token;
+    if (
+      response.data &&
+      response.data.accessToken &&
+      response.data.refreshToken
+    ) {
+      await AsyncStorage.setItem("userToken", response.data.accessToken);
+      await AsyncStorage.setItem("refreshToken", response.data.refreshToken);
+      return response.data.accessToken;
     } else {
-      throw new Error("Login failed: No token received");
+      throw new Error("Login failed: No tokens received");
     }
   } catch (error: any) {
     if (error.response) {
@@ -51,9 +69,69 @@ export const login = async (email: string, password: string) => {
   }
 };
 
+export const refreshToken = async (): Promise<string> => {
+  try {
+    const refreshToken = await AsyncStorage.getItem("refreshToken");
+    if (!refreshToken) {
+      throw new Error("No refresh token found");
+    }
+
+    const response = await axios.post<TokenResponse>(
+      `${API_BASE_URL}/auth/refresh`,
+      {
+        refreshToken,
+      }
+    );
+
+    if (
+      response.data &&
+      response.data.accessToken &&
+      response.data.refreshToken
+    ) {
+      await AsyncStorage.setItem("userToken", response.data.accessToken);
+      await AsyncStorage.setItem("refreshToken", response.data.refreshToken);
+      return response.data.accessToken;
+    } else {
+      throw new Error("Token refresh failed: No tokens received");
+    }
+  } catch (error: any) {
+    if (error.response) {
+      throw new Error(error.response.data.message || "Token refresh failed");
+    } else if (error.request) {
+      throw new Error(
+        "No response from server. Please check your internet connection."
+      );
+    } else {
+      throw new Error("Error setting up the request: " + error.message);
+    }
+  }
+};
+
+export const getValidToken = async (): Promise<string | null> => {
+  try {
+    const accessToken = await AsyncStorage.getItem("userToken");
+    if (!accessToken) {
+      return null;
+    }
+
+    const decodedToken: any = jwtDecode(accessToken);
+    const currentTime = Date.now() / 1000;
+
+    if (decodedToken.exp < currentTime) {
+      return await refreshToken();
+    }
+
+    return accessToken;
+  } catch (error) {
+    console.error("Error getting valid token:", error);
+    return null;
+  }
+};
+
 export const logout = async () => {
   try {
     await AsyncStorage.removeItem("userToken");
+    await AsyncStorage.removeItem("refreshToken");
   } catch (error) {
     console.error("Error during logout:", error);
   }

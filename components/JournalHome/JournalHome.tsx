@@ -6,9 +6,11 @@ import colors from "@/constants/Colors";
 import { useRouter } from "expo-router";
 import { logout } from "@/services/authService";
 import OverlayMenu from "../OverlayMenu/OverlayMenu";
+import JournalEntryForm from "./JournalEntryForm";
 
 export default function JournalHome() {
   const [isMenuVisible, setIsMenuVisible] = useState(false);
+  const [isFormVisible, setIsFormVisible] = useState(false);
   const router = useRouter();
 
   const handleLogout = async () => {
@@ -25,6 +27,15 @@ export default function JournalHome() {
     setIsMenuVisible(!isMenuVisible);
   };
 
+  const toggleForm = () => {
+    setIsFormVisible(!isFormVisible);
+  };
+
+  const handleSubmitEntry = (entry: any) => {
+    // Here you would typically save the entry to your backend or local storage
+    console.log("New entry:", entry);
+    // After saving, you might want to refresh the list of entries or navigate to the new entry
+  };
   return (
     <View style={styles.container}>
       <StatusBar style="light" />
@@ -45,13 +56,18 @@ export default function JournalHome() {
         <Text style={styles.subText}>Create your personal journal.</Text>
         <Text style={styles.subText}>Tap the plus button to get started.</Text>
       </View>
-      <TouchableOpacity style={styles.addButton}>
+      <TouchableOpacity style={styles.addButton} onPress={toggleForm}>
         <Ionicons name="add" size={32} color={colors.white} />
       </TouchableOpacity>
       <OverlayMenu
         isVisible={isMenuVisible}
         onClose={() => setIsMenuVisible(false)}
         onLogout={handleLogout}
+      />
+      <JournalEntryForm
+        isVisible={isFormVisible}
+        onClose={toggleForm}
+        onSubmit={handleSubmitEntry}
       />
     </View>
   );

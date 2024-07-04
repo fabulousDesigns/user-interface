@@ -4,8 +4,8 @@ import colors from "@/constants/Colors";
 import { useRouter } from "expo-router";
 import AnimatedInput from "../AnimatedInput/AnimatedInput";
 import { CustomText } from "../CustonText/CustomText";
-import { login } from "@/services/authService";
 import SuccessPopup from "../Popups/SuccessPopup";
+import { useAuth } from "@/contexts/AuthContext";
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -14,6 +14,7 @@ export default function Login() {
   const [isLoading, setIsLoading] = useState(false);
   const [showSuccessMessage, setShowSuccessMessage] = useState(false);
   const router = useRouter();
+  const { login } = useAuth();
 
   const validateInputs = () => {
     if (!email || !password) {
@@ -36,16 +37,12 @@ export default function Login() {
 
     setIsLoading(true);
     try {
-      const token = await login(email, password);
-      if (token) {
-        setShowSuccessMessage(true);
-        setTimeout(() => {
-          setShowSuccessMessage(false);
-          router.replace("/(app)");
-        }, 1500);
-      } else {
-        throw new Error("Login failed: No token received");
-      }
+      await login(email, password);
+      setShowSuccessMessage(true);
+      setTimeout(() => {
+        setShowSuccessMessage(false);
+        router.replace("/(app)");
+      }, 1500);
     } catch (error: any) {
       setError(error.message);
       Alert.alert("Login Failed", error.message);
@@ -78,8 +75,14 @@ export default function Login() {
         />
         {error ? <Text style={styles.errorText}>{error}</Text> : null}
 
-        <TouchableOpacity style={styles.loginButton} onPress={handleLogin}>
-          <CustomText style={styles.loginButtonText}>Login</CustomText>
+        <TouchableOpacity
+          style={styles.loginButton}
+          onPress={handleLogin}
+          disabled={isLoading}
+        >
+          <CustomText style={styles.loginButtonText}>
+            {isLoading ? "Logging in..." : "Login"}
+          </CustomText>
         </TouchableOpacity>
       </View>
       <View style={styles.header}>
@@ -136,18 +139,6 @@ const styles = StyleSheet.create({
     textAlign: "justify",
     marginBottom: 35,
     letterSpacing: 1,
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: "bold",
-    marginBottom: 20,
-    color: colors.white,
-    textTransform: "uppercase",
-    letterSpacing: 1,
-  },
-  subTitle: {
-    marginBottom: 20,
-    color: colors.light,
   },
   loginButton: {
     backgroundColor: colors.white,
