@@ -1,17 +1,37 @@
-import React from "react";
+import React, { useState } from "react";
 import { View, Text, TouchableOpacity, StyleSheet, Image } from "react-native";
 import { StatusBar } from "expo-status-bar";
 import { Ionicons } from "@expo/vector-icons";
 import colors from "@/constants/Colors";
+import { useRouter } from "expo-router";
+import { logout } from "@/services/authService";
+import OverlayMenu from "../OverlayMenu/OverlayMenu";
 
 export default function JournalHome() {
+  const [isMenuVisible, setIsMenuVisible] = useState(false);
+  const router = useRouter();
+
+  const handleLogout = async () => {
+    try {
+      await logout();
+      router.replace("/login");
+    } catch (error) {
+      console.error("Logout failed:", error);
+      // Handle logout error (show an alert, for example)
+    }
+  };
+
+  const toggleMenu = () => {
+    setIsMenuVisible(!isMenuVisible);
+  };
+
   return (
     <View style={styles.container}>
       <StatusBar style="light" />
       <View style={styles.header}>
         <Text style={styles.title}>Journal</Text>
-        <TouchableOpacity>
-          <Ionicons name="menu" size={24} color={colors.white} />
+        <TouchableOpacity onPress={toggleMenu}>
+          <Ionicons name="menu" size={40} color={colors.white} />
         </TouchableOpacity>
       </View>
       <View style={styles.content}>
@@ -28,6 +48,11 @@ export default function JournalHome() {
       <TouchableOpacity style={styles.addButton}>
         <Ionicons name="add" size={32} color={colors.white} />
       </TouchableOpacity>
+      <OverlayMenu
+        isVisible={isMenuVisible}
+        onClose={() => setIsMenuVisible(false)}
+        onLogout={handleLogout}
+      />
     </View>
   );
 }

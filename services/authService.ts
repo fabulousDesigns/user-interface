@@ -1,6 +1,5 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
-
 const API_BASE_URL = "http://localhost:5001";
 
 interface RegisterData {
@@ -28,7 +27,7 @@ export async function register(data: RegisterData): Promise<any> {
 
 export const login = async (email: string, password: string) => {
   try {
-    const response = await axios.post(`${API_BASE_URL}/login`, {
+    const response = await axios.post(`${API_BASE_URL}/auth/login`, {
       email,
       password,
     });

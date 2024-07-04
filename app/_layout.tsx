@@ -35,7 +35,10 @@ export default function RootLayout() {
   }
 
   return (
-    <Stack screenOptions={{ headerShown: false }} onLayout={onLayoutRootView}>
+    <Stack
+      screenOptions={{ headerShown: false, animation: "slide_from_right" }}
+      onLayout={onLayoutRootView}
+    >
       <Stack.Screen name="index" />
       <Stack.Screen name="login" />
       <Stack.Screen name="signup" />

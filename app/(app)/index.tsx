@@ -1,5 +1,9 @@
 import JournalHome from "@/components/JournalHome/JournalHome";
-
+import ProtectedRoute from "@/components/ProtectedRoute/ProtectedRoute";
 export default function HomeScreen() {
-  return <JournalHome />;
+  return (
+    <ProtectedRoute>
+      <JournalHome />
+    </ProtectedRoute>
+  );
 }
