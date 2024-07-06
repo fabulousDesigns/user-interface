@@ -17,8 +17,7 @@ This is a personal journaling app built with React Native and bootstrapped with 
 - [Installation](#installation)
 - [Running the App](#running-the-app)
 - [Project Structure](#project-structure)
-- [Contributing](#contributing)
-- [License](#license)
+- [Credits](#credits)
 
 ## Features
 
