@@ -5,7 +5,9 @@
 This is a personal journaling app built with React Native and bootstrapped with Expo. The app allows users to create, edit, and delete journal entries, and includes features such as user authentication, summaries, and profile settings.
 
 ### Screenshots
-![alt-text-1](/screenshots/login.png) ![alt-text-2](/screenshots/signup.png)
+![alt-text-1](/screenshots/login.png) ![alt-text-2](/screenshots/signup.png) ![alt-text-3](/screenshots/mainView.png)
+![alt-text-4](/screenshots/mainView2.png) ![alt-text-5](/screenshots/mainView3.png) ![alt-text-6](/screenshots/add-a-new-entry.png)
+![alt-text-7](/screenshots/Menu.png) ![alt-text-8](/screenshots/summary.png) ![alt-text-9](/screenshots/entry-created-successfully.png)
 
 
 ## Table of Contents
