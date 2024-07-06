@@ -1,208 +1,217 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
   TextInput,
   TouchableOpacity,
-  Image,
-  StyleSheet,
   ScrollView,
   KeyboardAvoidingView,
   Platform,
+  ActivityIndicator,
+  Image,
 } from "react-native";
-import * as ImagePicker from "expo-image-picker";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import colors from "@/constants/Colors";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import axios from "axios";
+import SuccessPopup from "@/components/Popups/secondarySucessPopup";
+import ErrorPopup from "@/components/Popups/ErrorPopup";
+import settingsStyles from "@/styles/SettingsStyles";
+
+const API_URL = "http://localhost:5001";
+
+const updateProfile = async (token: string, userData: any) => {
+  try {
+    const response = await axios.put(`${API_URL}/api/profile`, userData, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+const getUserDetails = async (token: string) => {
+  try {
+    const response = await axios.get(`${API_URL}/auth/user`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
 
 export default function Settings() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [profileImage, setProfileImage] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [successPopupVisible, setSuccessPopupVisible] = useState(false);
+  const [errorPopupVisible, setErrorPopupVisible] = useState(false);
+  const [popupMessage, setPopupMessage] = useState("");
+  const [profileImage, setProfileImage] = useState<string | null>(null);
+
   const router = useRouter();
 
-  const pickImage = async () => {
-    let result: any = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      allowsEditing: true,
-      aspect: [1, 1],
-      quality: 1,
-    });
+  useEffect(() => {
+    loadUserData();
+  }, []);
 
-    if (!result.canceled) {
-      setProfileImage(result.assets[0].uri);
+  const loadUserData = async () => {
+    setIsLoading(true);
+    try {
+      const token = await AsyncStorage.getItem("userToken");
+      if (!token) throw new Error("No authentication token found");
+
+      const userData = await getUserDetails(token);
+      setName(userData.username);
+      setEmail(userData.email);
+
+      await AsyncStorage.setItem("userData", JSON.stringify(userData));
+    } catch (error) {
+      console.error("Error loading user data:", error);
+      setPopupMessage("Failed to load user data");
+      setErrorPopupVisible(true);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleUpdateProfile = async () => {
+    if (password !== confirmPassword) {
+      setPopupMessage("Passwords do not match");
+      setErrorPopupVisible(true);
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      const token = await AsyncStorage.getItem("userToken");
+      if (!token) throw new Error("No authentication token found");
+      const userData = { name, email, newPassword: password };
+      const response = await updateProfile(token, userData);
+      await AsyncStorage.setItem("userData", JSON.stringify(response.user));
+      setPopupMessage("Profile updated successfully");
+      setSuccessPopupVisible(true);
+      setPassword("");
+      setConfirmPassword("");
+    } catch (error) {
+      console.error("Error updating profile:", error);
+      setPopupMessage("Failed to update profile");
+      setErrorPopupVisible(true);
+    } finally {
+      setIsLoading(false);
     }
   };
 
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === "ios" ? "padding" : "height"}
-      style={styles.container}
+      style={settingsStyles.container}
     >
-      <ScrollView contentContainerStyle={styles.scrollContent}>
-        <TouchableOpacity
-          style={styles.backButton}
-          onPress={() => router.push("/(app)")}
-        >
-          <Ionicons name="arrow-back" size={24} color={colors.white} />
-        </TouchableOpacity>
-        <View style={styles.profileSection}>
-          <TouchableOpacity
-            style={styles.profileImageContainer}
-            onPress={pickImage}
-          >
-            <Image
-              source={
-                profileImage
-                  ? { uri: profileImage }
-                  : require("@/assets/images/default-profile.jpg")
-              }
-              style={styles.profileImage}
-            />
-            <View style={styles.editIconContainer}>
-              <Ionicons name="pencil" size={16} color={colors.white} />
+      <ScrollView contentContainerStyle={settingsStyles.scrollContent}>
+        {isLoading ? (
+          <ActivityIndicator size="large" color={colors.primary} />
+        ) : (
+          <>
+            <TouchableOpacity
+              style={settingsStyles.backButton}
+              onPress={() => router.push("/(app)")}
+            >
+              <Ionicons name="arrow-back" size={24} color={colors.white} />
+            </TouchableOpacity>
+            <View style={settingsStyles.profileSection}>
+              <TouchableOpacity style={settingsStyles.profileImageContainer}>
+                <Image
+                  source={
+                    profileImage
+                      ? { uri: profileImage }
+                      : require("@/assets/images/default-profile.jpg")
+                  }
+                  style={settingsStyles.profileImage}
+                />
+                <View style={settingsStyles.editIconContainer}>
+                  <Ionicons name="pencil" size={16} color={colors.white} />
+                </View>
+              </TouchableOpacity>
+              <Text style={settingsStyles.editText}>Edit Profile Picture</Text>
             </View>
-          </TouchableOpacity>
-          <Text style={styles.editText}>Edit Profile Picture</Text>
-        </View>
-        <Text style={styles.promptText}>
-          Personalize your profile information
-        </Text>
+            <Text style={settingsStyles.promptText}>
+              Personalize your profile information
+            </Text>
 
-        <View style={styles.inputContainer}>
-          <Text style={styles.inputLabel}>Name</Text>
-          <TextInput
-            style={styles.input}
-            value={name}
-            onChangeText={setName}
-            placeholder="Enter your name"
-            placeholderTextColor={colors.light}
-          />
-        </View>
-        <View style={styles.inputContainer}>
-          <Text style={styles.inputLabel}>Email</Text>
-          <TextInput
-            style={styles.input}
-            value={email}
-            onChangeText={setEmail}
-            placeholder="Enter your email"
-            placeholderTextColor={colors.light}
-            keyboardType="email-address"
-          />
-        </View>
-        <View style={styles.inputContainer}>
-          <Text style={styles.inputLabel}>New Password</Text>
-          <TextInput
-            style={styles.input}
-            value={password}
-            onChangeText={setPassword}
-            placeholder="Enter new password"
-            placeholderTextColor={colors.light}
-            secureTextEntry
-          />
-        </View>
-        <View style={styles.inputContainer}>
-          <Text style={styles.inputLabel}>Confirm New Password</Text>
-          <TextInput
-            style={styles.input}
-            value={confirmPassword}
-            onChangeText={setConfirmPassword}
-            placeholder="Confirm new password"
-            placeholderTextColor={colors.light}
-            secureTextEntry
-          />
-        </View>
+            <View style={settingsStyles.inputContainer}>
+              <Text style={settingsStyles.inputLabel}>Name</Text>
+              <TextInput
+                style={settingsStyles.input}
+                value={name}
+                onChangeText={setName}
+                placeholder="Enter your name"
+                placeholderTextColor={colors.light}
+              />
+            </View>
+            <View style={settingsStyles.inputContainer}>
+              <Text style={settingsStyles.inputLabel}>Email</Text>
+              <TextInput
+                style={settingsStyles.input}
+                value={email}
+                onChangeText={setEmail}
+                placeholder="Enter your email"
+                placeholderTextColor={colors.light}
+                keyboardType="email-address"
+              />
+            </View>
+            <View style={settingsStyles.inputContainer}>
+              <Text style={settingsStyles.inputLabel}>New Password</Text>
+              <TextInput
+                style={settingsStyles.input}
+                value={password}
+                onChangeText={setPassword}
+                placeholder="Enter new password"
+                placeholderTextColor={colors.light}
+                secureTextEntry
+              />
+            </View>
+            <View style={settingsStyles.inputContainer}>
+              <Text style={settingsStyles.inputLabel}>
+                Confirm New Password
+              </Text>
+              <TextInput
+                style={settingsStyles.input}
+                value={confirmPassword}
+                onChangeText={setConfirmPassword}
+                placeholder="Confirm new password"
+                placeholderTextColor={colors.light}
+                secureTextEntry
+              />
+            </View>
+          </>
+        )}
       </ScrollView>
-      <TouchableOpacity style={styles.updateButton}>
-        <Text style={styles.updateButtonText}>Update Profile</Text>
+      <TouchableOpacity
+        style={settingsStyles.updateButton}
+        onPress={handleUpdateProfile}
+        disabled={isLoading}
+      >
+        {isLoading ? (
+          <ActivityIndicator color={colors.white} />
+        ) : (
+          <Text style={settingsStyles.updateButtonText}>Update Profile</Text>
+        )}
       </TouchableOpacity>
+      <SuccessPopup
+        isVisible={successPopupVisible}
+        message={popupMessage}
+        onClose={() => setSuccessPopupVisible(false)}
+      />
+      <ErrorPopup
+        isVisible={errorPopupVisible}
+        message={popupMessage}
+        onClose={() => setErrorPopupVisible(false)}
+      />
     </KeyboardAvoidingView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.bg,
-  },
-  scrollContent: {
-    padding: 20,
-  },
-  backButton: {
-    marginBottom: 20,
-    padding: 10,
-    alignSelf: "flex-start",
-  },
-  profileSection: {
-    alignItems: "center",
-    marginBottom: 30,
-  },
-  profileImageContainer: {
-    position: "relative",
-    marginBottom: 10,
-  },
-  profileImage: {
-    width: 120,
-    height: 120,
-    borderRadius: 60,
-    borderWidth: 3,
-    borderColor: colors.primary,
-  },
-  editIconContainer: {
-    position: "absolute",
-    bottom: 0,
-    right: 0,
-    backgroundColor: colors.primary,
-    borderRadius: 15,
-    padding: 8,
-  },
-  editText: {
-    color: colors.primary,
-    fontSize: 16,
-    fontWeight: "600",
-  },
-  promptText: {
-    color: colors.light,
-    textAlign: "center",
-    marginBottom: 30,
-    fontSize: 16,
-    letterSpacing: 1,
-  },
-  inputContainer: {
-    marginBottom: 20,
-    padding: 5,
-  },
-  inputLabel: {
-    color: colors.light,
-    marginBottom: 5,
-    fontSize: 14,
-    fontWeight: "bold",
-  },
-  input: {
-    backgroundColor: colors.bgVariant,
-    borderRadius: 10,
-    color: colors.white,
-    paddingHorizontal: 15,
-    paddingVertical: 12,
-    fontSize: 16,
-  },
-  aboutInput: {
-    height: 100,
-    textAlignVertical: "top",
-  },
-  updateButton: {
-    backgroundColor: colors.primary,
-    padding: 15,
-    alignItems: "center",
-    margin: 20,
-    borderRadius: 30,
-  },
-  updateButtonText: {
-    color: colors.white,
-    fontWeight: "bold",
-    letterSpacing: 1,
-    fontSize: 16,
-  },
-});

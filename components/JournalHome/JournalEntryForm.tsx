@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import {
   View,
   Text,
@@ -9,11 +9,13 @@ import {
   ScrollView,
   Image,
   Dimensions,
+  Alert,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import * as ImagePicker from "expo-image-picker";
 import colors from "@/constants/Colors";
 import CategoryDropdown from "./CategoryDropdown";
+
 const { width } = Dimensions.get("window");
 
 interface JournalEntryFormProps {
@@ -22,9 +24,9 @@ interface JournalEntryFormProps {
   onSubmit: (entry: {
     title: string;
     content: string;
-    category: string;
+    categoryId: number | any;
     images: string[];
-  }) => void;
+  }) => Promise<void>;
 }
 
 const JournalEntryForm: React.FC<JournalEntryFormProps> = ({
@@ -35,11 +37,18 @@ const JournalEntryForm: React.FC<JournalEntryFormProps> = ({
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [category, setCategory] = useState("");
+  const [categoryId, setCategoryId] = useState<number | null>(null);
   const [images, setImages] = useState<string[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [errors, setErrors] = useState({
+    title: "",
+    content: "",
+    category: "",
+  });
 
   const slideAnim = useRef(new Animated.Value(0)).current;
 
-  React.useEffect(() => {
+  useEffect(() => {
     Animated.timing(slideAnim, {
       toValue: isVisible ? 1 : 0,
       duration: 300,
@@ -47,13 +56,47 @@ const JournalEntryForm: React.FC<JournalEntryFormProps> = ({
     }).start();
   }, [isVisible]);
 
-  const handleSubmit = () => {
-    onSubmit({ title, content, category, images });
+  const handleSubmit = async () => {
+    let hasError = false;
+    const newErrors = { title: "", content: "", category: "" };
+
+    if (!title.trim()) {
+      newErrors.title = "Please enter a title.";
+      hasError = true;
+    }
+    if (!content.trim()) {
+      newErrors.content = "Please enter the content.";
+      hasError = true;
+    }
+    if (!categoryId) {
+      newErrors.category = "Please select a category.";
+      hasError = true;
+    }
+
+    setErrors(newErrors);
+
+    if (hasError) return;
+
+    setIsLoading(true);
+
+    try {
+      await onSubmit({ title, content, categoryId, images });
+      resetForm();
+    } catch (error) {
+      console.error("Error submitting journal entry:", error);
+      Alert.alert("Error", "Failed to submit journal entry. Please try again.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const resetForm = () => {
     setTitle("");
     setContent("");
     setCategory("");
+    setCategoryId(null);
     setImages([]);
-    handleClose();
+    setErrors({ title: "", content: "", category: "" });
   };
 
   const handleClose = () => {
@@ -63,6 +106,7 @@ const JournalEntryForm: React.FC<JournalEntryFormProps> = ({
       useNativeDriver: true,
     }).start(() => {
       onClose();
+      resetForm();
     });
   };
 
@@ -116,11 +160,22 @@ const JournalEntryForm: React.FC<JournalEntryFormProps> = ({
           placeholder="Enter title"
           placeholderTextColor={colors.bg}
         />
+        {errors.title ? (
+          <Text style={styles.errorText}>{errors.title}</Text>
+        ) : null}
+
         <Text style={styles.label}>Category</Text>
         <CategoryDropdown
           selectedCategory={category}
-          onSelectCategory={setCategory}
+          onSelectCategory={(categoryName, id) => {
+            setCategory(categoryName);
+            setCategoryId(id);
+          }}
         />
+        {errors.category ? (
+          <Text style={styles.errorText}>{errors.category}</Text>
+        ) : null}
+
         <Text style={styles.label}>Content</Text>
         <TextInput
           style={[styles.input, styles.contentInput]}
@@ -130,11 +185,15 @@ const JournalEntryForm: React.FC<JournalEntryFormProps> = ({
           placeholderTextColor={colors.bg}
           multiline
         />
-        <Text style={styles.label}>Images</Text>
-        <TouchableOpacity style={styles.imagePickerButton} onPress={pickImage}>
+        {errors.content ? (
+          <Text style={styles.errorText}>{errors.content}</Text>
+        ) : null}
+
+        {/* <Text style={styles.label}>Images</Text> */}
+        {/* <TouchableOpacity style={styles.imagePickerButton} onPress={pickImage}>
           <Ionicons name="camera" size={24} color={colors.white} />
           <Text style={styles.imagePickerButtonText}>Add Image</Text>
-        </TouchableOpacity>
+        </TouchableOpacity> */}
         <ScrollView style={styles.imagePreviewContainer}>
           <View style={styles.imageContainer}>
             {images.map((image, index) => (
@@ -155,8 +214,14 @@ const JournalEntryForm: React.FC<JournalEntryFormProps> = ({
           </View>
         </ScrollView>
       </ScrollView>
-      <TouchableOpacity style={styles.submitButton} onPress={handleSubmit}>
-        <Text style={styles.submitButtonText}>Save Entry</Text>
+      <TouchableOpacity
+        style={[styles.submitButton, isLoading && styles.disabledButton]}
+        onPress={handleSubmit}
+        disabled={isLoading}
+      >
+        <Text style={styles.submitButtonText}>
+          {isLoading ? "Submitting..." : "Save Entry"}
+        </Text>
       </TouchableOpacity>
     </Animated.View>
   );
@@ -214,7 +279,6 @@ const styles = StyleSheet.create({
   contentInput: {
     height: 150,
     textAlignVertical: "top",
-    color: colors.bg,
   },
   imagePickerButton: {
     backgroundColor: colors.primary,
@@ -249,11 +313,21 @@ const styles = StyleSheet.create({
     margin: 5,
     borderRadius: 10,
   },
+  removeImageButton: {
+    position: "absolute",
+    top: -10,
+    right: -10,
+    borderRadius: 12,
+    padding: 2,
+  },
   submitButton: {
     backgroundColor: colors.primary,
     padding: 15,
     borderRadius: 30,
     alignItems: "center",
+  },
+  disabledButton: {
+    opacity: 0.5,
   },
   submitButtonText: {
     color: colors.white,
@@ -261,12 +335,11 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     letterSpacing: 1,
   },
-  removeImageButton: {
-    position: "absolute",
-    top: -10,
-    right: -10,
-    borderRadius: 12,
-    padding: 2,
+  errorText: {
+    color: "red",
+    marginBottom: 10,
+    fontSize: 14,
+    letterSpacing: 1,
   },
 });
 

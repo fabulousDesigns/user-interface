@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -12,39 +12,59 @@ import colors from "@/constants/Colors";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const screenWidth = Dimensions.get("window").width;
-const mockData = {
-  daily: {
-    labels: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
-    data: [3, 2, 4, 3, 5, 1, 2],
-  },
-  weekly: {
-    labels: ["Week 1", "Week 2", "Week 3", "Week 4"],
-    data: [14, 18, 21, 15],
-  },
-  monthly: {
-    labels: [
-      "Jan",
-      "Feb",
-      "Mar",
-      "Apr",
-      "May",
-      "Jun",
-      "jul",
-      "Aug",
-      "Sep",
-      "Oct",
-      "Nov",
-      "Dec",
-    ],
-    data: [45, 52, 60, 58, 62, 55, 50, 48, 53, 57, 59, 61],
-  },
-};
 
 export default function Summary() {
   const [period, setPeriod] = useState<"daily" | "weekly" | "monthly">("daily");
+  const [mockData, setMockData] = useState({
+    daily: { labels: [], data: [] },
+    weekly: { labels: [], data: [] },
+    monthly: { labels: [], data: [] },
+  });
+
   const router = useRouter();
+
+  useEffect(() => {
+    fetchData("daily");
+    fetchData("weekly");
+    fetchData("monthly");
+  }, []);
+
+  const fetchData = async (periodType: any) => {
+    try {
+      const token = await AsyncStorage.getItem("userToken");
+      if (!token) {
+        throw new Error("No token found");
+      }
+
+      const response = await fetch(
+        `http://localhost:5001/api/summary/${periodType}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Error fetching data");
+      }
+
+      const data = await response.json();
+      setMockData((prevMockData) => ({
+        ...prevMockData,
+        [periodType]: {
+          labels: data[periodType].labels,
+          data: data[periodType].data,
+        },
+      }));
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    }
+  };
 
   const chartConfig = {
     backgroundGradientFrom: colors.bg,
@@ -52,6 +72,13 @@ export default function Summary() {
     color: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
     strokeWidth: 2,
     barPercentage: 0.5,
+    propsForLabels: {
+      fontSize: 14,
+    },
+    propsForVerticalLabels: {
+      fontSize: 16,
+    },
+    barColors: ["#3F3FFF"],
   };
 
   return (
@@ -92,7 +119,7 @@ export default function Summary() {
               datasets: [{ data: mockData[period].data }],
             }}
             width={screenWidth - 40}
-            height={220}
+            height={250}
             yAxisLabel=""
             yAxisSuffix=""
             chartConfig={chartConfig}
@@ -123,10 +150,6 @@ export default function Summary() {
             <Text style={styles.statLabel}>Least Entries</Text>
           </View>
         </View>
-
-        <TouchableOpacity style={styles.viewDetailsButton}>
-          <Text style={styles.viewDetailsButtonText}>View Detailed Report</Text>
-        </TouchableOpacity>
       </ScrollView>
     </SafeAreaView>
   );
@@ -137,6 +160,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: colors.bg,
   },
+
   container: {
     flex: 1,
     padding: 20,
@@ -196,15 +220,5 @@ const styles = StyleSheet.create({
   statLabel: {
     color: colors.light,
     marginTop: 5,
-  },
-  viewDetailsButton: {
-    backgroundColor: colors.primary,
-    padding: 15,
-    borderRadius: 10,
-    alignItems: "center",
-  },
-  viewDetailsButtonText: {
-    color: colors.white,
-    fontWeight: "bold",
   },
 });

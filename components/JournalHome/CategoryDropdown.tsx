@@ -1,25 +1,40 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import colors from "@/constants/Colors";
 
 interface CategoryDropdownProps {
   selectedCategory: string;
-  onSelectCategory: (category: string) => void;
+  onSelectCategory: (category: string, id: number) => void;
 }
-
-const categories = ["Personal", "Work", "Travel", "Other"];
 
 const CategoryDropdown: React.FC<CategoryDropdownProps> = ({
   selectedCategory,
   onSelectCategory,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
+  const [categories, setCategories] = useState<{ name: string; id: number }[]>(
+    []
+  );
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const response = await fetch("http://localhost:5001/api/categories");
+        const data = await response.json();
+        setCategories(data);
+      } catch (error) {
+        console.error("Failed to fetch categories", error);
+      }
+    };
+
+    fetchCategories();
+  }, []);
 
   const toggleDropdown = () => setIsOpen(!isOpen);
 
-  const handleSelectCategory = (category: string) => {
-    onSelectCategory(category);
+  const handleSelectCategory = (categoryName: string, categoryId: number) => {
+    onSelectCategory(categoryName, categoryId);
     setIsOpen(false);
   };
 
@@ -39,11 +54,11 @@ const CategoryDropdown: React.FC<CategoryDropdownProps> = ({
         <View style={styles.dropdownList}>
           {categories.map((category) => (
             <TouchableOpacity
-              key={category}
+              key={category.id}
               style={styles.dropdownItem}
-              onPress={() => handleSelectCategory(category)}
+              onPress={() => handleSelectCategory(category.name, category.id)}
             >
-              <Text style={styles.dropdownItemText}>{category}</Text>
+              <Text style={styles.dropdownItemText}>{category.name}</Text>
             </TouchableOpacity>
           ))}
         </View>

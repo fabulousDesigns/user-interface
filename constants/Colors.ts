@@ -9,6 +9,7 @@ const colors = {
   darkGray: "#333",
   lightGray: "#aaa",
   dark: "#000",
+  gray: "#555",
 };
 
 export default colors;
