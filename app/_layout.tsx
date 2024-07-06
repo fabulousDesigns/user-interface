@@ -1,4 +1,5 @@
 import React, { useState, useCallback, useEffect } from "react";
+import { View } from "react-native";
 import { Stack, useRouter } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import Splash from "@/components/splash/Splash";
@@ -37,15 +38,16 @@ export default function RootLayout() {
 
   return (
     <AuthProvider>
-      <Stack
-        screenOptions={{ headerShown: false, animation: "slide_from_right" }}
-        onLayout={onLayoutRootView}
-      >
-        <Stack.Screen name="index" />
-        <Stack.Screen name="login" />
-        <Stack.Screen name="signup" />
-        <Stack.Screen name="(app)" />
-      </Stack>
+      <View style={{ flex: 1 }} onLayout={onLayoutRootView}>
+        <Stack
+          screenOptions={{ headerShown: false, animation: "slide_from_right" }}
+        >
+          <Stack.Screen name="index" />
+          <Stack.Screen name="login" />
+          <Stack.Screen name="signup" />
+          <Stack.Screen name="(app)" />
+        </Stack>
+      </View>
     </AuthProvider>
   );
 }

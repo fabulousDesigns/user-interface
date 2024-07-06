@@ -76,7 +76,6 @@ export default function JournalHome() {
       if (!token) {
         throw new Error("No valid token found");
       }
-
       const response = await axios.get(`${API_BASE_URL}/api/journal-entries`, {
         headers: {
           Authorization: `Bearer ${token}`,

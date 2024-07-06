@@ -14,34 +14,10 @@ import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import colors from "@/constants/Colors";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import axios from "axios";
 import SuccessPopup from "@/components/Popups/secondarySucessPopup";
 import ErrorPopup from "@/components/Popups/ErrorPopup";
 import settingsStyles from "@/styles/SettingsStyles";
-
-const API_URL = "http://localhost:5001";
-
-const updateProfile = async (token: string, userData: any) => {
-  try {
-    const response = await axios.put(`${API_URL}/api/profile`, userData, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
-    return response.data;
-  } catch (error) {
-    throw error;
-  }
-};
-
-const getUserDetails = async (token: string) => {
-  try {
-    const response = await axios.get(`${API_URL}/auth/user`, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
-    return response.data;
-  } catch (error) {
-    throw error;
-  }
-};
+import { getUserDetails, updateProfile } from "@/services/getUserDetails";
 
 export default function Settings() {
   const [name, setName] = useState("");

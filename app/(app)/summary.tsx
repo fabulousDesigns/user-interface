@@ -1,11 +1,5 @@
 import React, { useState, useEffect } from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-  ScrollView,
-} from "react-native";
+import { View, Text, TouchableOpacity, ScrollView } from "react-native";
 import { BarChart } from "react-native-chart-kit";
 import { Dimensions } from "react-native";
 import colors from "@/constants/Colors";
@@ -13,6 +7,8 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import SummaryStyles from "@/styles/SummaryStyles";
+import { chartConfig } from "@/constants/utils";
 
 const screenWidth = Dimensions.get("window").width;
 
@@ -66,44 +62,32 @@ export default function Summary() {
     }
   };
 
-  const chartConfig = {
-    backgroundGradientFrom: colors.bg,
-    backgroundGradientTo: colors.bg,
-    color: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
-    strokeWidth: 2,
-    barPercentage: 0.5,
-    propsForLabels: {
-      fontSize: 14,
-    },
-    propsForVerticalLabels: {
-      fontSize: 16,
-    },
-    barColors: ["#3F3FFF"],
-  };
-
   return (
-    <SafeAreaView style={styles.safeArea}>
-      <ScrollView style={styles.container}>
-        <View style={styles.header}>
+    <SafeAreaView style={SummaryStyles.safeArea}>
+      <ScrollView style={SummaryStyles.container}>
+        <View style={SummaryStyles.header}>
           <TouchableOpacity
             onPress={() => router.replace("/(app)")}
-            style={styles.backButton}
+            style={SummaryStyles.backButton}
           >
             <Ionicons name="arrow-back" size={24} color={colors.white} />
           </TouchableOpacity>
-          <Text style={styles.title}>Journal Summary</Text>
+          <Text style={SummaryStyles.title}>Journal Summary</Text>
         </View>
-        <View style={styles.periodSelector}>
+        <View style={SummaryStyles.periodSelector}>
           {["daily", "weekly", "monthly"].map((p) => (
             <TouchableOpacity
               key={p}
-              style={[styles.periodButton, period === p && styles.activePeriod]}
+              style={[
+                SummaryStyles.periodButton,
+                period === p && SummaryStyles.activePeriod,
+              ]}
               onPress={() => setPeriod(p as "daily" | "weekly" | "monthly")}
             >
               <Text
                 style={[
-                  styles.periodButtonText,
-                  period === p && styles.activePeriodText,
+                  SummaryStyles.periodButtonText,
+                  period === p && SummaryStyles.activePeriodText,
                 ]}
               >
                 {p.charAt(0).toUpperCase() + p.slice(1)}
@@ -112,7 +96,7 @@ export default function Summary() {
           ))}
         </View>
 
-        <View style={styles.chartContainer}>
+        <View style={SummaryStyles.chartContainer}>
           <BarChart
             data={{
               labels: mockData[period].labels,
@@ -130,95 +114,27 @@ export default function Summary() {
           />
         </View>
 
-        <View style={styles.statsContainer}>
-          <View style={styles.statItem}>
-            <Text style={styles.statValue}>
+        <View style={SummaryStyles.statsContainer}>
+          <View style={SummaryStyles.statItem}>
+            <Text style={SummaryStyles.statValue}>
               {mockData[period].data.reduce((a, b) => a + b, 0)}
             </Text>
-            <Text style={styles.statLabel}>Total Entries</Text>
+            <Text style={SummaryStyles.statLabel}>Total Entries</Text>
           </View>
-          <View style={styles.statItem}>
-            <Text style={styles.statValue}>
+          <View style={SummaryStyles.statItem}>
+            <Text style={SummaryStyles.statValue}>
               {Math.max(...mockData[period].data)}
             </Text>
-            <Text style={styles.statLabel}>Most Entries</Text>
+            <Text style={SummaryStyles.statLabel}>Most Entries</Text>
           </View>
-          <View style={styles.statItem}>
-            <Text style={styles.statValue}>
+          <View style={SummaryStyles.statItem}>
+            <Text style={SummaryStyles.statValue}>
               {Math.min(...mockData[period].data)}
             </Text>
-            <Text style={styles.statLabel}>Least Entries</Text>
+            <Text style={SummaryStyles.statLabel}>Least Entries</Text>
           </View>
         </View>
       </ScrollView>
     </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  safeArea: {
-    flex: 1,
-    backgroundColor: colors.bg,
-  },
-
-  container: {
-    flex: 1,
-    padding: 20,
-  },
-  header: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginBottom: 20,
-    gap: 20,
-  },
-  backButton: {
-    marginRight: 15,
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: "bold",
-    color: colors.white,
-  },
-  periodSelector: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    marginBottom: 20,
-  },
-  periodButton: {
-    paddingVertical: 8,
-    paddingHorizontal: 16,
-    borderRadius: 20,
-    backgroundColor: colors.dark,
-  },
-  activePeriod: {
-    backgroundColor: colors.primary,
-  },
-  periodButtonText: {
-    color: colors.light,
-    fontWeight: "bold",
-  },
-  activePeriodText: {
-    color: colors.white,
-  },
-  chartContainer: {
-    marginBottom: 20,
-    alignItems: "center",
-  },
-  statsContainer: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    marginBottom: 20,
-  },
-  statItem: {
-    alignItems: "center",
-  },
-  statValue: {
-    fontSize: 24,
-    fontWeight: "bold",
-    color: colors.white,
-  },
-  statLabel: {
-    color: colors.light,
-    marginTop: 5,
-  },
-});

@@ -1,11 +1,11 @@
 import React, { useState } from "react";
-import { View, Text, TouchableOpacity, StyleSheet, Alert } from "react-native";
-import colors from "@/constants/Colors";
+import { View, Text, TouchableOpacity, Alert } from "react-native";
 import { useRouter } from "expo-router";
 import AnimatedInput from "../AnimatedInput/AnimatedInput";
 import { CustomText } from "../CustonText/CustomText";
 import { register } from "@/services/authService";
 import SuccessPopup from "../Popups/SuccessPopup";
+import SignupStyles from "@/styles/SignUpStyles";
 
 export default function SignUp() {
   const [email, setEmail] = useState("");
@@ -66,13 +66,13 @@ export default function SignUp() {
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.welcomeText}>
+    <View style={SignupStyles.container}>
+      <Text style={SignupStyles.welcomeText}>
         Let's Get
         {"\n"}
         You Started 🚀
       </Text>
-      <View style={styles.formContainer}>
+      <View style={SignupStyles.formContainer}>
         <AnimatedInput
           placeholder="Enter your name"
           value={username}
@@ -101,16 +101,19 @@ export default function SignUp() {
           secureTextEntry
           keyboardType={undefined}
         />
-        {error ? <Text style={styles.errorText}>{error}</Text> : null}
+        {error ? <Text style={SignupStyles.errorText}>{error}</Text> : null}
 
-        <TouchableOpacity style={styles.signUpButton} onPress={handleSignUp}>
-          <CustomText style={styles.signUpButtonText}>Sign Up</CustomText>
+        <TouchableOpacity
+          style={SignupStyles.signUpButton}
+          onPress={handleSignUp}
+        >
+          <CustomText style={SignupStyles.signUpButtonText}>Sign Up</CustomText>
         </TouchableOpacity>
       </View>
-      <View style={styles.header}>
-        <Text style={styles.headerText}>Already have an account?</Text>
+      <View style={SignupStyles.header}>
+        <Text style={SignupStyles.headerText}>Already have an account?</Text>
         <TouchableOpacity onPress={() => router.replace("/login")}>
-          <Text style={styles.loginText}>Login</Text>
+          <Text style={SignupStyles.loginText}>Login</Text>
         </TouchableOpacity>
       </View>
       <SuccessPopup
@@ -120,75 +123,3 @@ export default function SignUp() {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.bg,
-    padding: 25,
-    justifyContent: "center",
-  },
-  header: {
-    flexDirection: "row",
-    justifyContent: "flex-end",
-    alignItems: "center",
-    marginTop: 40,
-  },
-  headerText: {
-    color: colors.light,
-    marginRight: 5,
-    letterSpacing: 1,
-  },
-  loginText: {
-    color: colors.primary,
-    fontWeight: "bold",
-    letterSpacing: 1,
-  },
-  formContainer: {
-    width: "100%",
-    maxWidth: 400,
-    borderRadius: 10,
-    padding: 20,
-    shadowColor: colors.bg,
-    shadowOffset: { width: -2, height: -2 },
-    shadowOpacity: 1,
-    shadowRadius: 10,
-  },
-  welcomeText: {
-    fontSize: 40,
-    fontWeight: "bold",
-    color: colors.white,
-    textAlign: "justify",
-    marginBottom: 35,
-    letterSpacing: 1,
-  },
-  signUpButton: {
-    backgroundColor: colors.white,
-    padding: 13,
-    borderRadius: 27,
-    alignItems: "center",
-    marginTop: 30,
-    shadowColor: colors.bg,
-    shadowOffset: { width: 2, height: 2 },
-    shadowOpacity: 1,
-    shadowRadius: 10,
-  },
-  signUpButtonText: {
-    color: colors.bg,
-    fontWeight: "bold",
-    fontSize: 20,
-    letterSpacing: 1,
-    textTransform: "uppercase",
-  },
-  errorText: {
-    color: "red",
-    marginBottom: 10,
-    letterSpacing: 1,
-  },
-  successText: {
-    color: colors.primary,
-    fontWeight: "bold",
-    textAlign: "center",
-    marginBottom: 10,
-  },
-});

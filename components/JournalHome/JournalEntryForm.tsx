@@ -3,31 +3,22 @@ import {
   View,
   Text,
   TextInput,
-  StyleSheet,
   Animated,
   TouchableOpacity,
   ScrollView,
-  Image,
+  // Image,
+  StyleSheet,
   Dimensions,
   Alert,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import * as ImagePicker from "expo-image-picker";
+// import * as ImagePicker from "expo-image-picker";
 import colors from "@/constants/Colors";
 import CategoryDropdown from "./CategoryDropdown";
+import { JournalEntryFormProps } from "@/constants/utils";
+import JournalEntryFormStyles from "@/styles/JournalEntryFormStyles";
 
-const { width } = Dimensions.get("window");
-
-interface JournalEntryFormProps {
-  isVisible: boolean;
-  onClose: () => void;
-  onSubmit: (entry: {
-    title: string;
-    content: string;
-    categoryId: number | any;
-    images: string[];
-  }) => Promise<void>;
-}
+// const { width } = Dimensions.get("window");
 
 const JournalEntryForm: React.FC<JournalEntryFormProps> = ({
   isVisible,
@@ -110,22 +101,22 @@ const JournalEntryForm: React.FC<JournalEntryFormProps> = ({
     });
   };
 
-  const pickImage = async () => {
-    let result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      allowsEditing: true,
-      aspect: [4, 3],
-      quality: 1,
-    });
+  // const pickImage = async () => {
+  //   let result = await ImagePicker.launchImageLibraryAsync({
+  //     mediaTypes: ImagePicker.MediaTypeOptions.Images,
+  //     allowsEditing: true,
+  //     aspect: [4, 3],
+  //     quality: 1,
+  //   });
 
-    if (!result.canceled && result.assets && result.assets.length > 0) {
-      setImages([...images, result.assets[0].uri]);
-    }
-  };
+  //   if (!result.canceled && result.assets && result.assets.length > 0) {
+  //     setImages([...images, result.assets[0].uri]);
+  //   }
+  // };
 
-  const removeImage = (index: number) => {
-    setImages(images.filter((_, i) => i !== index));
-  };
+  // const removeImage = (index: number) => {
+  //   setImages(images.filter((_, i) => i !== index));
+  // };
 
   if (!isVisible) return null;
 
@@ -145,26 +136,29 @@ const JournalEntryForm: React.FC<JournalEntryFormProps> = ({
         },
       ]}
     >
-      <View style={styles.header}>
-        <Text style={styles.headerTitle}>New Entry</Text>
-        <TouchableOpacity style={styles.closeButton} onPress={handleClose}>
+      <View style={JournalEntryFormStyles.header}>
+        <Text style={JournalEntryFormStyles.headerTitle}>New Entry</Text>
+        <TouchableOpacity
+          style={JournalEntryFormStyles.closeButton}
+          onPress={handleClose}
+        >
           <Ionicons name="close" size={24} color={colors.white} />
         </TouchableOpacity>
       </View>
-      <ScrollView style={styles.formContainer}>
-        <Text style={styles.label}>Title</Text>
+      <ScrollView style={JournalEntryFormStyles.formContainer}>
+        <Text style={JournalEntryFormStyles.label}>Title</Text>
         <TextInput
-          style={styles.input}
+          style={JournalEntryFormStyles.input}
           value={title}
           onChangeText={setTitle}
           placeholder="Enter title"
           placeholderTextColor={colors.bg}
         />
         {errors.title ? (
-          <Text style={styles.errorText}>{errors.title}</Text>
+          <Text style={JournalEntryFormStyles.errorText}>{errors.title}</Text>
         ) : null}
 
-        <Text style={styles.label}>Category</Text>
+        <Text style={JournalEntryFormStyles.label}>Category</Text>
         <CategoryDropdown
           selectedCategory={category}
           onSelectCategory={(categoryName, id) => {
@@ -173,12 +167,17 @@ const JournalEntryForm: React.FC<JournalEntryFormProps> = ({
           }}
         />
         {errors.category ? (
-          <Text style={styles.errorText}>{errors.category}</Text>
+          <Text style={JournalEntryFormStyles.errorText}>
+            {errors.category}
+          </Text>
         ) : null}
 
-        <Text style={styles.label}>Content</Text>
+        <Text style={JournalEntryFormStyles.label}>Content</Text>
         <TextInput
-          style={[styles.input, styles.contentInput]}
+          style={[
+            JournalEntryFormStyles.input,
+            JournalEntryFormStyles.contentInput,
+          ]}
           value={content}
           onChangeText={setContent}
           placeholder="Write your journal entry here"
@@ -186,21 +185,21 @@ const JournalEntryForm: React.FC<JournalEntryFormProps> = ({
           multiline
         />
         {errors.content ? (
-          <Text style={styles.errorText}>{errors.content}</Text>
+          <Text style={JournalEntryFormStyles.errorText}>{errors.content}</Text>
         ) : null}
 
-        {/* <Text style={styles.label}>Images</Text> */}
-        {/* <TouchableOpacity style={styles.imagePickerButton} onPress={pickImage}>
+        {/* <Text style={JournalEntryFormStyles.label}>Images</Text> */}
+        {/* <TouchableOpacity style={JournalEntryFormStyles.imagePickerButton} onPress={pickImage}>
           <Ionicons name="camera" size={24} color={colors.white} />
-          <Text style={styles.imagePickerButtonText}>Add Image</Text>
+          <Text style={JournalEntryFormStyles.imagePickerButtonText}>Add Image</Text>
         </TouchableOpacity> */}
-        <ScrollView style={styles.imagePreviewContainer}>
-          <View style={styles.imageContainer}>
+        {/* <ScrollView style={JournalEntryFormStyles.imagePreviewContainer}>
+          <View style={JournalEntryFormStyles.imageContainer}>
             {images.map((image, index) => (
-              <View key={index} style={styles.imageWrapper}>
-                <Image source={{ uri: image }} style={styles.image} />
+              <View key={index} style={JournalEntryFormStyles.imageWrapper}>
+                <Image source={{ uri: image }} style={JournalEntryFormStyles.image} />
                 <TouchableOpacity
-                  style={styles.removeImageButton}
+                  style={JournalEntryFormStyles.removeImageButton}
                   onPress={() => removeImage(index)}
                 >
                   <Ionicons
@@ -212,14 +211,17 @@ const JournalEntryForm: React.FC<JournalEntryFormProps> = ({
               </View>
             ))}
           </View>
-        </ScrollView>
+        </ScrollView> */}
       </ScrollView>
       <TouchableOpacity
-        style={[styles.submitButton, isLoading && styles.disabledButton]}
+        style={[
+          JournalEntryFormStyles.submitButton,
+          isLoading && JournalEntryFormStyles.disabledButton,
+        ]}
         onPress={handleSubmit}
         disabled={isLoading}
       >
-        <Text style={styles.submitButtonText}>
+        <Text style={JournalEntryFormStyles.submitButtonText}>
           {isLoading ? "Submitting..." : "Save Entry"}
         </Text>
       </TouchableOpacity>
@@ -243,103 +245,6 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 3,
     elevation: 5,
-  },
-  header: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: 20,
-  },
-  headerTitle: {
-    fontSize: 20,
-    fontWeight: "bold",
-    color: colors.white,
-  },
-  closeButton: {
-    padding: 5,
-  },
-  formContainer: {
-    flex: 1,
-  },
-  label: {
-    fontSize: 16,
-    fontWeight: "bold",
-    color: colors.white,
-    marginBottom: 8,
-    letterSpacing: 1,
-  },
-  input: {
-    backgroundColor: colors.white,
-    borderRadius: 10,
-    padding: 12,
-    marginBottom: 20,
-    color: colors.bg,
-    fontSize: 16,
-  },
-  contentInput: {
-    height: 150,
-    textAlignVertical: "top",
-  },
-  imagePickerButton: {
-    backgroundColor: colors.primary,
-    padding: 15,
-    borderRadius: 10,
-    flexDirection: "row",
-    justifyContent: "center",
-    alignItems: "center",
-    marginBottom: 20,
-  },
-  imagePickerButtonText: {
-    color: colors.white,
-    fontSize: 16,
-    marginLeft: 10,
-    letterSpacing: 1,
-  },
-  imagePreviewContainer: {
-    height: 150,
-    marginBottom: 20,
-  },
-  imageContainer: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-  },
-  imageWrapper: {
-    position: "relative",
-    margin: 5,
-  },
-  image: {
-    width: (width - 60) / 4,
-    height: (width - 60) / 4,
-    margin: 5,
-    borderRadius: 10,
-  },
-  removeImageButton: {
-    position: "absolute",
-    top: -10,
-    right: -10,
-    borderRadius: 12,
-    padding: 2,
-  },
-  submitButton: {
-    backgroundColor: colors.primary,
-    padding: 15,
-    borderRadius: 30,
-    alignItems: "center",
-  },
-  disabledButton: {
-    opacity: 0.5,
-  },
-  submitButtonText: {
-    color: colors.white,
-    fontSize: 18,
-    fontWeight: "bold",
-    letterSpacing: 1,
-  },
-  errorText: {
-    color: "red",
-    marginBottom: 10,
-    fontSize: 14,
-    letterSpacing: 1,
   },
 });
 

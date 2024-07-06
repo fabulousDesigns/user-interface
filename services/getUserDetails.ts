@@ -11,3 +11,14 @@ export const getUserDetails = async (token: string) => {
     throw error;
   }
 };
+
+export const updateProfile = async (token: string, userData: any) => {
+  try {
+    const response = await axios.put(`${API_URL}/api/profile`, userData, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};

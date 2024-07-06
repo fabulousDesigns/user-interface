@@ -2,12 +2,7 @@ import React, { useState } from "react";
 import { View, Text, TextInput, TouchableOpacity } from "react-native";
 import colors from "@/constants/Colors";
 import JournalEntryItemStyles from "@/styles/JournalEntryItemStyles";
-
-interface EditJournalEntryFormProps {
-  entry: { title: string; content: string };
-  onSave: (updatedEntry: { title: string; content: string }) => void;
-  onCancel: () => void;
-}
+import { EditJournalEntryFormProps } from "@/constants/utils";
 
 const EditJournalEntryForm: React.FC<EditJournalEntryFormProps> = ({
   entry,
