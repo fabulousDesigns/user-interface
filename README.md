@@ -1,50 +1,92 @@
-# Welcome to your Expo app 👋
+---
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+## Personal Journaling App
 
-## Get started
+This is a personal journaling app built with React Native and bootstrapped with Expo. The app allows users to create, edit, and delete journal entries, and includes features such as user authentication, summaries, and profile settings.
 
-1. Install dependencies
+## Table of Contents
 
-   ```bash
-   npm install
-   ```
+- [Features](#features)
+- [Prerequisites](#prerequisites)
+- [Installation](#installation)
+- [Running the App](#running-the-app)
+- [Project Structure](#project-structure)
+- [Contributing](#contributing)
+- [License](#license)
 
-2. Start the app
+## Features
 
-   ```bash
-    npx expo start
-   ```
+- User authentication (Sign Up, Login)
+- Create, edit, and delete journal entries
+- Summary View of journal entries by month, week, or day
+- Profile settings (change Name, email, password, Logout)
+- Smooth animations and transitions
+- Responsive design
 
-In the output, you'll find options to open the app in a
+## Prerequisites
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+Before you begin, ensure you have met the following requirements:
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+- You have installed [Node.js](https://nodejs.org/en/download/) (version 14.x or later)
+- You have installed [Expo CLI](https://docs.expo.dev/get-started/installation/)
+- You have a working mobile device or emulator to run the app
 
-## Get a fresh project
+## Installation
 
-When you're ready, run:
+1. Clone the repository:
 
 ```bash
-npm run reset-project
+git clone https://github.com/fabulousDesigns/user-interface.git
+cd user-interface
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+2. Install dependencies:
 
-## Learn more
+```bash
+npm install
+```
 
-To learn more about developing your project with Expo, look at the following resources:
+## Running the App
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+1. Start the Expo development server:
 
-## Join the community
+```bash
+npx expo start --clear
+```
 
-Join our community of developers creating universal apps.
+2. Open the Expo app on your mobile device and scan the QR code, or run the app on an emulator:
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+- For iOS: Press `i` to run on an iOS simulator.
+- For Android: Press `a` to run on an Android emulator.
+*Note: I used a Browser to test this app.. You can get more insights on the setup video below*
+
+3. The app should now be running on your device or emulator.
+
+## Project Structure
+
+Here is an overview of the project structure:
+
+```
+personal-journaling-app/
+├── app/                    # Entry point of the app
+├── app.json                # Expo configuration
+├── assets/                 # Asset files (images, fonts, etc.)
+├── components/             # Reusable components
+├── constants/              # Constant values (e.g., colors, styles)
+├── contexts/               # Context providers
+├── hooks/                  # Custom hooks
+├── package.json            # Project dependencies and scripts
+├── README.md               # Project documentation
+├── screens/                # Screen components
+├── services/               # API service calls
+└── styles/                 # Global styles
+
+```
+
+
+## Credits
+- Name: Maina Bernard Mburu
+- Email: designsfabulous8@gmail.com
+- Phone: +254110026199
+
+---
