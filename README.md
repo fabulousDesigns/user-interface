@@ -2,7 +2,7 @@
 
 ## Personal Journaling App
 
-This is a personal journaling app built with React Native and bootstrapped with Expo. The app allows users to create, edit, and delete journal entries, and includes features such as user authentication, summaries, and profile settings.
+This personal journaling app was built with React Native and bootstrapped with Expo. The app allows users to create, edit, and delete journal entries and includes features such as user authentication, summaries, and profile settings.
 
 ### Screenshots
 ![alt-text-1](/screenshots/login.png) ![alt-text-2](/screenshots/signup.png) ![alt-text-3](/screenshots/mainView.png)
@@ -28,6 +28,8 @@ This is a personal journaling app built with React Native and bootstrapped with 
 - Smooth animations and transitions
 - Responsive design
 
+- Refer to this [video](https://drive.google.com/file/d/11vrgwpe6GjlmYw41g_9Kw2nqktCXuS9A/view?usp=drive_link) for more insights
+
 ## Prerequisites
 
 Before you begin, ensure you have met the following requirements:
@@ -35,6 +37,8 @@ Before you begin, ensure you have met the following requirements:
 - You have installed [Node.js](https://nodejs.org/en/download/) (version 14.x or later)
 - You have installed [Expo CLI](https://docs.expo.dev/get-started/installation/)
 - You have a working mobile device or emulator to run the app
+
+- Refer to this [video](https://drive.google.com/file/d/11vrgwpe6GjlmYw41g_9Kw2nqktCXuS9A/view?usp=drive_link) for more insights
 
 ## Installation
 
@@ -68,6 +72,9 @@ npx expo start --clear
 
 3. The app should now be running on your device or emulator.
 
+- Refer to this [video](https://drive.google.com/file/d/11vrgwpe6GjlmYw41g_9Kw2nqktCXuS9A/view?usp=drive_link) for more insights
+
+
 ## Project Structure
 
 Here is an overview of the project structure:
@@ -89,6 +96,7 @@ personal-journaling-app/
 
 ```
 
+- Refer to this [video](https://drive.google.com/file/d/11vrgwpe6GjlmYw41g_9Kw2nqktCXuS9A/view?usp=drive_link) for more insights
 
 ## Credits
 - Name: Maina Bernard Mburu
